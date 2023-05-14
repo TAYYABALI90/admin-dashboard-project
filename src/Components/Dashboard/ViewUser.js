@@ -1,0 +1,181 @@
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import Logo from './Logo'
+import Spinner from './Spinner';
+
+export default function ViewUser() {
+
+  let [data, setData] = useState("");
+
+  let [error, setError] = useState("");
+
+  let [isPending, setIsPending] = useState(true);
+
+  let [update, setUpdate] = useState("");
+
+  useEffect(() => {
+
+    setTimeout(() => {
+
+      fetch("http://localhost:8000/users")
+
+        .then((response) => {
+
+          if (!response.ok) {
+
+            throw new Error(response.status);
+
+          };
+
+          return response.json();
+
+        })
+
+        .then((data) => {
+
+          setData(data);
+
+          setIsPending(false);
+
+        })
+
+        .catch((error) => {
+
+          setError(error);
+
+          setIsPending(false);
+
+        })
+
+    }, 2000);
+
+  }, [update]);
+
+  let handleDelete = (id) => {
+
+    setUpdate("");
+
+    fetch(`http://localhost:8000/users/${id}`, {
+
+      method: "DELETE"
+
+    })
+
+      .then((response) => {
+
+        setUpdate("updated");
+
+      })
+
+      .catch((error) => {
+
+        setError(error.message);
+
+      });
+
+  };
+
+  return (
+    <>
+      {isPending && <Spinner></Spinner>}
+      <div className="card">
+        <div className="card-header" style={{ backgroundColor: "navy" }}>
+          <h2 className="card-title"><Logo></Logo></h2>
+        </div>
+        <div className="card-body">
+          <div id="example1_wrapper" className="dataTables_wrapper dt-bootstrap4">
+            <div className="row">
+              <div className="col-sm-12">
+                <table id="example1" className="table table-bordered table-striped dataTable dtr-inline" aria-describedby="example1_info">
+                  <thead>
+                    <tr>
+                      <th className="sorting sorting_asc" tabIndex={0} aria-controls="example1" rowSpan={1} colSpan={1} aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">ID
+                      </th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="Browser: activate to sort column ascending">FName</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1" rowSpan={1} colSpan={1} aria-label="Platform(s): activate to sort column ascending">LName</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="Engine version: activate to sort column ascending">USERNAME</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="CSS grade: activate to sort column ascending">EMAIL</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="CSS grade: activate to sort column ascending">PASSWORD</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="CSS grade: activate to sort column ascending">EDIT</th>
+                      <th
+                        className="sorting"
+                        tabIndex={0}
+                        aria-controls="example1"
+                        rowSpan={1}
+                        colSpan={1}
+                        aria-label="CSS grade: activate to sort column ascending">DELETE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data && data.map(user => (
+                      <tr>
+                        <td>{user.id}</td>
+                        <td>{user.firstName}</td>
+                        <td>{user.lastName}</td>
+                        <td>{user.username}</td>
+                        <td>{user.email}</td>
+                        <td>{user.password}</td>
+                        <td>
+                          <Link to={`/dashboard/editUser/${user.id}`} className="btn btn-info">Edit</Link>
+                        </td>
+                        <td>
+                          <button className="btn btn-danger" onClick={() => { handleDelete(user.id) }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th rowSpan={1} colSpan={1}>ID</th>
+                      <th rowSpan={1} colSpan={1}>FName</th>
+                      <th rowSpan={1} colSpan={1}>LName</th>
+                      <th rowSpan={1} colSpan={1}>USERNAME</th>
+                      <th rowSpan={1} colSpan={1}>EMAIL</th>
+                      <th rowSpan={1} colSpan={1}>PASSWORD</th>
+                      <th rowSpan={1} colSpan={1}>EDIT</th>
+                      <th rowSpan={1} colSpan={1}>DELETE</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {error && <h1>{error}</h1>}
+    </>
+  )
+}
